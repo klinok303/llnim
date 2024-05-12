@@ -1,7 +1,4 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
+#include <stddef.h>
 #include "raylib.h"
 #include "..\api\api.h"
 
@@ -9,9 +6,7 @@ static Plug *plug = NULL;
 
 extern void plug_init(raylib_funcs ref)
 {
-    plug = malloc(sizeof(*plug));
-    assert(plug != NULL && "Error: Bad plug alloc (buy more ram)");
-    memset(plug, 0, sizeof(*plug));
+    plug = plug_alloc();
 
     plug->bg_col = LIGHTGRAY;
     plug->ref = ref;
