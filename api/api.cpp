@@ -1,12 +1,16 @@
 #include <cstdlib>
 #include <cassert>
 #include <cstring>
+#include <cstdint>
+
 #include "api.h"
 
-Plug *plug_alloc()
+#include "Python.h"
+
+void *plug_alloc(size_t size)
 {
-    Plug *p = (Plug *)malloc(sizeof(*p));
+    void *p = malloc(size);
     assert(p != NULL && "Error: Bad plug alloc (buy more ram)");
-    memset(p, 0, sizeof(*p));
+    memset(p, 0, size);
     return p;
 }

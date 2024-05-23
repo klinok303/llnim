@@ -1,13 +1,23 @@
 #include <stddef.h>
 #include <math.h>
+#include <stdio.h>
 #include "raylib.h"
-#include "../api/api.h"
+#include "../../api/raylib_ref.h"
+#include "../../api/api.h"
+
+typedef struct 
+{
+    Color bg_col;
+    raylib_t ref;
+} Plug;
 
 static Plug *plug = NULL;
 
-extern void plug_init(raylib_funcs ref)
+const int maxCharge = 100;
+
+extern void plug_init(raylib_t ref)
 {
-    plug = plug_alloc();
+    plug = plug_alloc(sizeof(*plug));
 
     plug->bg_col = LIGHTGRAY;
     plug->ref = ref;
@@ -29,20 +39,11 @@ extern void plug_post_reload(void *state)
 
 extern void plug_update(float frame_time, double time)
 {
-    plug->ref.begin_drawing();
+    int charge = (maxCharge * (sinf(time / 5) + 1)) / 2;
+    char str[3];
 
-    int rect = 100;
-    int pad = rect * 0.25f;
-
-    int w = plug->ref.get_screen_width();
+    sprintf(str, "%d", charge);
 
     plug->ref.clear_background(plug->bg_col);
-
-    for (size_t i = 0; i < 5; i++)
-    {
-        plug->ref.draw_rectangle((w - rect) * ((sinf(time) + 1) * 0.5f), 
-            i * (rect + pad), rect, rect, DARKGRAY);
-    }
-
-    plug->ref.end_drawing();
+    plug->ref.draw_text(str, 0, 0, 50, GOLD);
 }
