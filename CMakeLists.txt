@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.2)
 project(llnim)
 
+# settings
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# dependences
 set(RAYLIB_VERSION 4.5.0)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
@@ -22,8 +25,16 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 
+set(Python_ADDITIONAL_VERSIONS 3.11)
+find_package(PythonLibs REQUIRED)
+
+# compile
 add_executable(${PROJECT_NAME} main.cpp dynamic_load.h dynamic_load.cpp plug.h
     api/raylib_ref.h)
-target_link_libraries(${PROJECT_NAME} raylib)
 
+# link
+target_link_libraries(${PROJECT_NAME} raylib ${PYTHON_LIBRARY})
+target_include_directories(${PROJECT_NAME} PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+# compile and link examples
 include(examples/compile.cmake)

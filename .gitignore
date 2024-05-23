@@ -1,3 +1,4 @@
 /.vscode
 /build
-/un
+/scripts/__pycache__
+/__pycache__

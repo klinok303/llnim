@@ -1,8 +1,7 @@
 #ifndef API_H
 #define API_H
 
-#include "raylib.h"
-#include "raylib_ref.h"
+#include "Python.h"
 
 #ifdef __cplusplus
 #define EXC extern "C"
@@ -10,12 +9,8 @@
 #define EXC
 #endif
 
-typedef struct 
-{
-    Color bg_col;
-    raylib_funcs ref;
-} Plug;
+EXC void *plug_alloc(size_t size);
 
-EXC Plug *plug_alloc();
+EXC PyObject *data_to_PyByteArrayObject(void *data, size_t size);
 
 #endif // API

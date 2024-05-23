@@ -9,18 +9,14 @@ typedef struct raylib_funcs
     int (*get_screen_height)(void);
 
     void (*clear_background)(Color);
-    void (*begin_drawing)(void);
-    void (*end_drawing)(void);
 
     /* TODO: not implemented --------------------------
     * void (*begin_mode_2d)(Camera2D);
     * void (*end_mode_2d)(void);
-    *  void (*begin_mode_3d)(Camera2D);
-    *  void (*begin_mode_3d)(void);
-    *  void (*begin_texture_mode)(RenderTexture2D);
-    *  void (*end_texture_mode)(void);
-    *  void (*begin_scissor_mode)(int, int, int, int);
-    *  ------------------------------------------------ */
+    * void (*begin_mode_3d)(Camera2D);
+    * void (*begin_mode_3d)(void);
+    * void (*begin_scissor_mode)(int, int, int, int);
+    * -------------------------------------------------*/
 
 
     void (*draw_pixel)(int, int, Color);
@@ -44,6 +40,10 @@ typedef struct raylib_funcs
     Color (*get_color)(unsigned int);
 
     void (*draw_text)(const char*, int, int, int, Color);
-} raylib_funcs;
+
+    void (*begin_texture_mode)(RenderTexture2D);
+    void (*end_texture_mode)(void);
+    RenderTexture2D (*load_render_texture)(int, int);
+} raylib_t;
 
 #endif // RAYLIB_REF
