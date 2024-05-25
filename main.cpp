@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
 {
     if (argc < 2)
     {
-        TraceLog(LOG_ERROR, "programme Usage: llnim <path to shared library (plugin)>");
+        TraceLog(LOG_ERROR, "Usage: llnim <path to shared library (plugin)>");
         return -1;
     }
 
