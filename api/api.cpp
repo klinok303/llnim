@@ -14,3 +14,11 @@ void *plug_alloc(size_t size)
     memset(p, 0, size);
     return p;
 }
+
+PyObject *data_to_PyByteArrayObject(void *data, size_t size)
+{
+    PyByteArrayObject *byte_array;
+    byte_array->ob_alloc = size;
+    byte_array->ob_bytes = (char*)data;
+    return (PyObject*)byte_array;
+}
