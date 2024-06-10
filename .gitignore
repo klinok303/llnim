@@ -2,5 +2,5 @@
 /build
 /scripts/__pycache__
 /__pycache__
-/api/LLNIM_API_warper/.idea
-/api/LLNIM_API_warper/target
+/api/llnim_rs/.idea
+/api/llnim_rs/target

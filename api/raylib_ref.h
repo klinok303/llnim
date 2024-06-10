@@ -18,7 +18,6 @@ typedef struct raylib_funcs
     * void (*begin_scissor_mode)(int, int, int, int);
     * -------------------------------------------------*/
 
-
     void (*draw_pixel)(int, int, Color);
     void (*draw_line)(int, int, int, int, Color);
     void (*draw_line_ex)(Vector2, Vector2, float, Color);
@@ -30,14 +29,6 @@ typedef struct raylib_funcs
     void (*draw_rectangle)(int, int, int, int, Color);
     void (*draw_rectangle_lines)(int, int, int, int, Color);
     void (*draw_rectangle_lines_ex)(Rectangle, float, Color);
-
-    Color (*color_from_hsv)(float, float, float);
-    Color (*color_tint)(Color, Color);
-    Color (*color_brightness)(Color, float);
-    Color (*color_contrast)(Color, float);
-    Color (*color_alpha)(Color, float);
-    Color (*color_alpha_blend)(Color, Color, Color);
-    Color (*get_color)(unsigned int);
 
     void (*draw_text)(const char*, int, int, int, Color);
 
