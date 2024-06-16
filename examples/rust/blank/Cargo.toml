@@ -1,0 +1,12 @@
+[package]
+name = "blank"
+version = "0.1.0"
+edition = "2021"
+crate-type = ["dylib", "rlib"]
+
+[dependencies]
+llnim_rs = { path = "../../../api/llnim_rs" }
+raylib = "3.7.0"
+
+[lib]
+crate-type = ["cdylib"]

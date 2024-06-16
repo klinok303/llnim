@@ -1,4 +1,9 @@
 /.vscode
 /build
-/scripts/__pycache__
-/__pycache__
+/api/llnim_rs/.idea
+/api/llnim_rs/target
+/examples/rust/array/.idea
+/examples/rust/battery/.idea
+/examples/rust/blank/.idea
+/examples/rust/cube-sine/.idea
+/examples/rust/keyframes/.idea

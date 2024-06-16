@@ -2,11 +2,15 @@
 #include "plug.h"
 
 #include "api/raylib_ref.h"
+#include "api/env.h"
 
 #include "raylib.h"
-#include "Python.h"
 
 #include <iostream>
+#include <fstream>
+#include <cstdint>
+#include <cstdlib>
+#include <string>
 
 #define RENDER_WIDTH 1600
 #define RENDER_HEIGHT 900
@@ -14,11 +18,40 @@
 #define RENDER_DT 1.0f/RENDER_FPS
 #define RENDER_LEN 5
 
+void FfmpegSendFrameFlipped(std::ofstream &file, void *data, size_t width, size_t height)
+{
+    if (!file.is_open())
+    {
+        TraceLog(LOG_ERROR, "Error: File is not open.");
+        return;
+    }
+
+    for (size_t y = height; y > 0; --y)
+    {
+        uint32_t* address = reinterpret_cast<uint32_t*>(data) + (y - 1) * width;
+        file.write(reinterpret_cast<char*>(address), sizeof(uint32_t) * width);
+    }
+
+    TraceLog(LOG_DEBUG, "Data has been written to file.");
+}
+
+void FfmpegCombine(int width, int height, int fps, const std::string& path) {
+    std::string cmd = "ffmpeg -loglevel verbose -y -f rawvideo -pix_fmt rgba -s " +
+        std::to_string(width) + "x" + std::to_string(height) + " -r " +
+        std::to_string(fps) + " -i " + path +
+        " -c:v libx264 -vb 2500k -c:a aac -ab 200k -pix_fmt yuv420p output.mp4";
+
+    int result = system(cmd.c_str());
+
+    if (result == 0) { TraceLog(LOG_INFO, "FFmpeg command executed successfully."); }
+    else { TraceLog(LOG_ERROR, "FFmpeg command failed."); }
+}
+
 int main(int argc, char const *argv[])
 {
     if (argc < 2)
     {
-        TraceLog(LOG_ERROR, "programme Usage: llnim <path to shared library (plugin)>");
+        TraceLog(LOG_ERROR, "Usage: llnim <path to shared library (plugin)>");
         return -1;
     }
 
@@ -27,29 +60,16 @@ int main(int argc, char const *argv[])
     plug_init = (void (*)(raylib_t))lib.Sym("plug_init");
     plug_pre_reload = (void* (*)())lib.Sym("plug_pre_reload");
     plug_post_reload = (void (*)(void*))lib.Sym("plug_pre_reload");
-    plug_update = (void (*)(float, double))lib.Sym("plug_update");
-
-    Py_Initialize();
+    plug_update = (void (*)(Env))lib.Sym("plug_update");
 
     int factor = 100;
 
-    PyObject *ffmpeg = PyImport_Import(PyUnicode_FromString("scripts.ffmpeg"));
-    if (!ffmpeg) 
-    {
-        TraceLog(LOG_ERROR, "ffmpeg script not found");
-        return -2;
-    }
-
-    PyObject *ffmpeg_process = NULL;
-
     raylib_t ref
     {
-        GetScreenWidth, GetScreenHeight, ClearBackground,
-        DrawPixel, DrawLine, DrawLineEx, DrawLineStrip,
+        ClearBackground, DrawPixel, DrawLine, DrawLineEx, DrawLineStrip,
         DrawCircle, DrawCircleSector, DrawCircleSectorLines, DrawEllipse,
-        DrawRectangle, DrawRectangleLines, DrawRectangleLinesEx, ColorFromHSV,
-        ColorTint, ColorBrightness, ColorContrast, ColorAlpha, ColorAlphaBlend,
-        GetColor, DrawText, BeginTextureMode, EndTextureMode, LoadRenderTexture
+        DrawRectangle, DrawRectangleLines, DrawRectangleLinesEx, DrawText,
+        BeginTextureMode, EndTextureMode
     };
 
     InitWindow(16 * factor, 9 * factor, "LLNim");
@@ -63,6 +83,8 @@ int main(int argc, char const *argv[])
 
     RenderTexture2D screen = LoadRenderTexture(16 * factor, 9 * factor);
 
+    std::ofstream file("temp_frames.raw", std::ios::out | std::ios::binary);
+
     while (!WindowShouldClose())
     {
 #ifdef unix
@@ -75,7 +97,7 @@ int main(int argc, char const *argv[])
             plug_init = (void (*)(raylib_funcs))lib.Sym("plug_init");
             plug_pre_reload = (void* (*)())lib.Sym("plug_pre_reload");
             plug_post_reload = (void (*)(void*))lib.Sym("plug_pre_reload");
-            plug_update = (void (*)(float, double))lib.Sym("plug_update");
+            plug_update = (void (*)(Env))lib.Sym("plug_update");
 
             plug_post_reload(state);
         }
@@ -83,71 +105,32 @@ int main(int argc, char const *argv[])
 
         BeginDrawing();
 
-        if (ffmpeg_process == NULL)
+        if (!isRendering)
         {
-            if (IsKeyPressed(KEY_R))
-            {
-                PyObject* srf = PyObject_GetAttrString(ffmpeg,
-                    "ffmpeg_start_rendering");
-
-                PyObject* srArgs = PyTuple_Pack(3,
-                    PyLong_FromLong(16 * factor), PyLong_FromLong(9 * factor),
-                    PyLong_FromLong(RENDER_FPS));
-
-                ffmpeg_process = PyObject_CallObject(srf, srArgs);
-
-                Py_DECREF(srArgs);
-                Py_DECREF(srf);
-            }
-            plug_update(GetFrameTime(), GetTime());
+            isRendering = IsKeyPressed(KEY_R);
+            plug_update({GetFrameTime(), GetTime(), GetScreenWidth(), GetScreenHeight(), NULL});
         }
         else
         {
             BeginTextureMode(screen);
-                plug_update(RENDER_DT, ffmpeg_render_timer);
+                plug_update({ .dt=RENDER_DT, .time=ffmpeg_render_timer, .screenWidth=GetScreenWidth(), .screenHeight=GetScreenHeight(), .play_sound=NULL});
             EndTextureMode();
             ffmpeg_render_timer += RENDER_DT;
 
             Image img = LoadImageFromTexture(screen.texture);
-            PyObject* ffmpeg_send_frame_flipped = PyObject_GetAttrString(ffmpeg,
-                "ffmpeg_send_frame_flipped");
-
-            PyObject* fsffArgs = PyTuple_Pack(4, ffmpeg_process, 
-                PyBytes_FromStringAndSize((const char*)img.data,
-                    img.width*img.height*sizeof(int)),
-                PyLong_FromLong(16 * factor), PyLong_FromLong(9 * factor));
-            
-            PyObject_CallObject(ffmpeg_send_frame_flipped, fsffArgs);
-
-            Py_DECREF(ffmpeg_send_frame_flipped);
-            Py_DECREF(fsffArgs);
+            FfmpegSendFrameFlipped(file, img.data, 16 * factor, 9 * factor);
             UnloadImage(img);
 
             if (ffmpeg_render_timer >= RENDER_LEN)
             {
-                PyObject* ffmpeg_end_rendering = PyObject_GetAttrString(ffmpeg,
-                    "ffmpeg_end_rendering");
-                PyObject* ferArgs = PyTuple_Pack(1, ffmpeg_process);
-
-                PyObject_CallObject(ffmpeg_end_rendering, ferArgs);
-                ffmpeg_process = NULL;
-
-                Py_DECREF(ferArgs);
-                Py_DECREF(ffmpeg_end_rendering);
+                FfmpegCombine(RENDER_WIDTH, RENDER_HEIGHT, RENDER_FPS, "temp_frames.raw");
+                isRendering = false;
             }
         }
 
         EndDrawing();
     }
 
-    std::cout << "End";
-
-    if (ffmpeg != NULL) 
-    {
-        Py_DECREF(ffmpeg);
-    }
-
-    Py_Finalize();
     CloseWindow();
 
     return 0;

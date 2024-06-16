@@ -1,0 +1,11 @@
+[package]
+name = "keyframes"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+llnim_rs = { path = "../../../api/llnim_rs" }
+raylib = "3.7.0"
+
+[lib]
+crate-type = ["cdylib"]

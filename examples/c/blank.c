@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "../../api/raylib_ref.h"
 #include "../../api/api.h"
+#include "../../api/env.h"
 
 typedef struct 
 {
@@ -33,7 +34,8 @@ extern void plug_post_reload(void *state)
     plug = state;
 }
 
-extern void plug_update(float frame_time, double time)
+extern void plug_update(Env _env)
 {
+    (void)_env;
     plug->ref.clear_background(plug->bg_col);
 }

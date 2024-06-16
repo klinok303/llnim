@@ -25,16 +25,12 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 
-set(Python_ADDITIONAL_VERSIONS 3.11)
-find_package(PythonLibs REQUIRED)
-
 # compile
 add_executable(${PROJECT_NAME} main.cpp dynamic_load.h dynamic_load.cpp plug.h
     api/raylib_ref.h)
 
 # link
-target_link_libraries(${PROJECT_NAME} raylib ${PYTHON_LIBRARY})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} raylib)
 
 # compile and link examples
 include(examples/compile.cmake)

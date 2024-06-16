@@ -4,6 +4,8 @@
 #include "raylib.h"
 #include "../../api/raylib_ref.h"
 #include "../../api/api.h"
+#include "../../api/env.h"
+
 
 typedef struct 
 {
@@ -37,12 +39,12 @@ extern void plug_post_reload(void *state)
     plug = (Plug*)state;
 }
 
-extern "C" void plug_update(float frame_time, double time)
+extern "C" void plug_update(Env env)
 {
-    int charge = (maxCharge * (sinf(time / 5) + 1)) / 2;
-    char str[3];
+    int charge = (maxCharge * (sinf(env.time / 5) + 1)) / 2;
+    char str[6];
 
-    sprintf(str, "%d", charge);
+    snprintf(str, sizeof(str), "%d", charge);
 
     plug->ref.clear_background(plug->bg_col);
     plug->ref.draw_text(str, 0, 0, 50, GOLD);

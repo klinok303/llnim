@@ -7,6 +7,7 @@
 
 #include "../../api/raylib_ref.h"
 #include "../../api/api.h"
+#include "../../api/env.h"
 
 typedef struct 
 {
@@ -48,22 +49,20 @@ extern "C" void plug_post_reload(void *state)
     }
 }
 
-static void render(float time, int rect, float pad_mult)
+static void render(Env env, int rect, float pad_mult)
 {
     int pad = rect * pad_mult;
-
-    int w = plug->ref.get_screen_width();
 
     plug->ref.clear_background(LIGHTGRAY);
 
     for (size_t i = 0; i < 5; i++)
     {
-        plug->ref.draw_rectangle((w - rect) * ((sinf(time) + 1) * 0.5f), 
+        plug->ref.draw_rectangle((env.screenWidth - rect) * ((sinf(env.time) + 1) * 0.5f), 
             i * (rect + pad), rect, rect, DARKGRAY);
     }
 }
 
-extern "C" void plug_update(float frame_time, double time)
+extern "C" void plug_update(Env env)
 {
-    render(time, 100, 0.25f);
+    render(env, 100, 0.25f);
 }

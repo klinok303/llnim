@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "../../api/raylib_ref.h"
 #include "../../api/api.h"
+#include "../../api/env.h"
 
 typedef struct 
 {
@@ -34,13 +35,11 @@ extern "C" void plug_post_reload(void *state)
     plug = (Plug*)state;
 }
 
-extern "C" void plug_update(float frame_time, double time)
+extern "C" void plug_update(Env env)
 {
-    int w = plug->ref.get_screen_width();
-    int h = plug->ref.get_screen_height();
     int rect = 100;
 
     plug->ref.clear_background(plug->bg_col);
-    plug->ref.draw_rectangle((w - rect) * ((sinf(time) + 1) * 0.5f),
-        (h * 0.5) - (rect * 0.5), rect, rect, DARKGRAY);
+    plug->ref.draw_rectangle((env.screenWidth - rect) * ((sinf(env.time) + 1) * 0.5f),
+        (env.screenHeight * 0.5) - (rect * 0.5), rect, rect, DARKGRAY);
 }
