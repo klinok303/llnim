@@ -24,6 +24,8 @@ Requires raylib, ffmpeg (for llnim rendering) and cmake.
 
 Compile llnim form sources:
 ```shell
+mkdir build
+cd build
 cmake .. "your-build-system"
 ```
 
