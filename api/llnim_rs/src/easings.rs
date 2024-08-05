@@ -8,3 +8,4 @@ pub fn ease_out_quad(x: f32) -> f32 { 1.0 - (1.0 - x).powi(2) }
 pub fn ease_in_out_quad(x: f32) -> f32 {
     if x < 0.5 { 2.0 * x * x }
     else { 1.0 - (-2.0 * x + 2.0).powi(2) / 2.0 }
+}
