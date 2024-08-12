@@ -26,7 +26,7 @@ Compile llnim form sources:
 ```shell
 mkdir build
 cd build
-cmake .. "your-build-system"
+cmake ..
 ```
 
 # Future Goals
